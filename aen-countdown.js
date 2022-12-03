@@ -35,21 +35,11 @@
         total: total
       };
     },
-    timerNode_1(number,id) {
-      var 
-      outer = d.createElement('div'),
-      span1 = d.createElement('span'),
-      span2 = d.createElement('span');
-
-      outer.setAttribute('data-timer-id', id);
-      outer.setAttribute('data-timer-value', number);
-
-      outer.appendChild(span1);
-      outer.appendChild(span2);
+    timerNode1(number,id) {
       this.content.innerHTML += `
         <div data-timer-id=${id} data-timer-value="${number}">
-          <span data-timer-one>${number}</span>
-          <span data-timer-two>${number}</span>
+          <span data-time-one>${number}</span>
+          <span data-time-two>${number}</span>
         </div>
       `;
     },
@@ -58,7 +48,7 @@
         var nodeFunction = this['timerNode_' + this.type];
 
         if(typeof nodeFunction === 'function') {
-          this['timerNode_' + this.type](number,index);
+          this['timerNode' + this.type](number,index);
         }
       }.bind(this));
     }
@@ -72,4 +62,38 @@
   })
 })(document);
 
+customElements.define('aen-countdown', class AENCountdown extends HTMLElement {
+  constructor() {
+    super();
+    //const shadow = this.attachShadow({ mode: open });
+    this.start = this.hasAttribute('start')
+      ? this.getAttribute('start') !== '' 
+      ? this.getAttribute('start') : new Date().getTime()
+      : new Date().getTime();
+      console.log(this.start)
+  }
 
+  getTimes() {
+    var now = new Date().getTime();
+    
+    if (this.getAttribute('start') >= now || now >= this.getAttribute('stop')) return false;
+ 
+    var 
+    remaining = this.stopTime - now,
+    days = this.get2Digits( Math.floor( remaining/(24*60*60*1000) ) ),
+    hours = this.get2Digits( Math.floor( (remaining/(60*60*1000)) / 24 ) ),
+    minutes = this.get2Digits( Math.floor( (remaining/1000/60) / 60 ) ),
+    seconds = this.get2Digits( Math.floor( (remaining/1000) / 60 ) ),
+    total = String(days + hours + minutes + seconds).split('');
+    
+    return {
+      days: days,
+      hours: hours,
+      minutes: minutes,
+      seconds: seconds,
+      total: total
+    };
+  }
+
+
+});
