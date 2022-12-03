@@ -38,13 +38,20 @@
     timerNode_1(number,id) {
       var 
       outer = d.createElement('div'),
-      span1 = d.createElement('div'),
-      span2 = d.createElement('div');
+      span1 = d.createElement('span'),
+      span2 = d.createElement('span');
 
       outer.setAttribute('data-timer-id', id);
       outer.setAttribute('data-timer-value', number);
-      outer.appendChild(span1,span2);
-      this.content.appendChild(outer);
+
+      outer.appendChild(span1);
+      outer.appendChild(span2);
+      this.content.innerHTML += `
+        <div data-timer-id=${id} data-timer-value="${number}">
+          <span data-timer-one>${number}</span>
+          <span data-timer-two>${number}</span>
+        </div>
+      `;
     },
     createNodes() {
       this.times().total.forEach(function(number,index) {
