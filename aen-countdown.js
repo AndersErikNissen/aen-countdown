@@ -65,12 +65,20 @@
 customElements.define('aen-countdown', class AENCountdown extends HTMLElement {
   constructor() {
     super();
+    
     //const shadow = this.attachShadow({ mode: open });
+
     this.start = this.hasAttribute('start')
       ? this.getAttribute('start') !== '' 
       ? this.getAttribute('start') : new Date().getTime()
       : new Date().getTime();
-      console.log(this.start)
+
+    this.stop = this.hasAttribute('stop')
+      ? this.getAttribute('stop') !== '' 
+      ? this.getAttribute('stop') : false
+      : false;
+
+      console.log(this.start,this.stop)
   }
 
   getTimes() {
@@ -94,6 +102,7 @@ customElements.define('aen-countdown', class AENCountdown extends HTMLElement {
       total: total
     };
   }
+  // Check after if the countdown should begin, only clearInterval when we are passed stop
 
 
 });
