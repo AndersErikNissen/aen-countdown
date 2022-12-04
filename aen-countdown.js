@@ -68,18 +68,33 @@ customElements.define('aen-countdown', class AENCountdown extends HTMLElement {
     
     //const shadow = this.attachShadow({ mode: open });
 
-    this.start = this.hasAttribute('start')
-      ? this.getAttribute('start') !== '' 
-      ? this.getAttribute('start') : new Date().getTime()
-      : new Date().getTime();
-
-    this.stop = this.hasAttribute('stop')
-      ? this.getAttribute('stop') !== '' 
-      ? this.getAttribute('stop') : false
-      : false;
-
       console.log(this.start,this.stop)
   }
+
+  get start() {
+    return this.hasAttribute('start')
+    ? this.getAttribute('start') !== '' 
+    ? this.getAttribute('start') : new Date().getTime()
+    : new Date().getTime();
+  }
+
+  get stop() {
+    return this.hasAttribute('stop')
+    ? this.getAttribute('stop') !== '' 
+    ? this.getAttribute('stop') : false
+    : false;
+  }
+
+  get children() {
+    return this.querySelector('[data-timer]');
+  }
+
+  /**
+   * @param {number} time - Last timestamp, used to generate current countdown.
+   */
+  set currentTime(time) {
+    this.currentTime = time;
+  };
 
   getTimes() {
     var now = new Date().getTime();
