@@ -127,6 +127,8 @@ customElements.define('aen-countdown', class AENCountdown extends HTMLElement {
 
   
   get timeObject() {
+
+    if (!this.run) return false;
     var now = new Date().getTime();
 
     var digits = function(number) {
@@ -170,6 +172,11 @@ customElements.define('aen-countdown', class AENCountdown extends HTMLElement {
       this.state = 'inactive';
       return;
     };
+
+    this.timeObject.total.forEach( time => {
+      const outer = document.createElement('div');
+      outer.isConnected === true;
+    });
     
     // this.timeObject.total.forEach( obj => {
       
