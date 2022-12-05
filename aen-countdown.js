@@ -128,7 +128,7 @@ customElements.define('aen-countdown', class AENCountdown extends HTMLElement {
   
   get timeObject() {
 
-    if (!this.run) return false;
+    if (!this.run) return;
     var now = new Date().getTime();
 
     var digits = function(number) {
@@ -168,13 +168,15 @@ customElements.define('aen-countdown', class AENCountdown extends HTMLElement {
   // Check after if the countdown should begin, only clearInterval when we are passed stop
 
   createChildNodes() {
-    if (!this.timeObject) {
+    if (!this.run) {
       this.state = 'inactive';
       return;
     };
 
     this.timeObject.total.forEach( time => {
       const outer = document.createElement('div');
+      const first = outer.appendChild(document.createElement('span'));
+      first.setAttribute('class', 'aen-countdown__first-timer');
       outer.isConnected === true;
     });
     
