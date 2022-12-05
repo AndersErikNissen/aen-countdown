@@ -175,8 +175,12 @@ customElements.define('aen-countdown', class AENCountdown extends HTMLElement {
 
     this.timeObject.total.forEach( time => {
       const outer = document.createElement('div');
+      outer.setAttribute('class', "aen-countdown__timer")
       const first = outer.appendChild(document.createElement('span'));
-      first.setAttribute('class', 'aen-countdown__first-timer');
+      const second = outer.appendChild(document.createElement('span'));
+      first.setAttribute('class', 'aen-countdown__digit');
+      second.setAttribute('class', 'aen-countdown__digit');
+
       outer.isConnected === true;
     });
     
