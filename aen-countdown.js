@@ -67,46 +67,78 @@ customElements.define('aen-countdown', class AENCountdown extends HTMLElement {
     super();
     
     //const shadow = this.attachShadow({ mode: open });
+    this.status = 'active';
+  }
 
-      console.log(this.start,this.stop)
+  connectedCallback() {
+    this.createChildNodes();
   }
 
   get start() {
     return this.hasAttribute('start')
     ? this.getAttribute('start') !== '' 
-    ? this.getAttribute('start') : new Date().getTime()
+    ? Date.parse(this.getAttribute('start')) 
+    : new Date().getTime()
     : new Date().getTime();
   }
 
   get stop() {
     return this.hasAttribute('stop')
     ? this.getAttribute('stop') !== '' 
-    ? this.getAttribute('stop') : false
+    ? Date.parse(this.getAttribute('stop')) 
+    : false
     : false;
   }
 
-  get children() {
-    return this.querySelector('[data-timer]');
+  get type() {
+    return this.hasAttribute('type')
+    ? this.getAttribute('type') !== ''
+    ? this.getAttribute('type')
+    : 'slide'
+    : 'slide';
   }
 
-  /**
-   * @param {number} time - Last timestamp, used to generate current countdown.
-   */
-  set currentTime(time) {
-    this.currentTime = time;
-  };
-
-  getTimes() {
+  get run() {
     var now = new Date().getTime();
+    return this.start >= now 
+    ? false
+    : now >= this.stop
+    ? false 
+    : true;
+  }
+
+  get state() {
+    return this.status;
+  }
+
+  get childNodes() {
+
+
+
+
+    // Might be redunant since we crate the children??????
+
+
+
+
+
+    return this.querySelectorAll('[data-timer]');
+  }
+
+  
+  get timeObject() {
+    var now = new Date().getTime();
+
+    var digits = function(number) {
+      return number < 10 ? '0' + number : String(number);
+    }
     
-    if (this.getAttribute('start') >= now || now >= this.getAttribute('stop')) return false;
- 
     var 
-    remaining = this.stopTime - now,
-    days = this.get2Digits( Math.floor( remaining/(24*60*60*1000) ) ),
-    hours = this.get2Digits( Math.floor( (remaining/(60*60*1000)) / 24 ) ),
-    minutes = this.get2Digits( Math.floor( (remaining/1000/60) / 60 ) ),
-    seconds = this.get2Digits( Math.floor( (remaining/1000) / 60 ) ),
+    remaining = this.stop - now,
+    days = digits( Math.floor( remaining/(24*60*60*1000) ) ),
+    hours = digits( Math.floor( (remaining/(60*60*1000)) % 24 ) ),
+    minutes = digits( Math.floor( (remaining/1000/60) % 60 ) ),
+    seconds = digits( Math.floor( (remaining/1000) % 60 ) ),
     total = String(days + hours + minutes + seconds).split('');
     
     return {
@@ -117,7 +149,31 @@ customElements.define('aen-countdown', class AENCountdown extends HTMLElement {
       total: total
     };
   }
+  
+  /**
+   * @param {number} time - Last timestamp, used to generate current countdown.
+   */
+  set current(time) {
+    this.current = time;
+  };
+
+  /**
+   * @param {status} status - Decides what state the countdown is in.
+   */
+  set state(status) {
+    this.status = status;
+  };
   // Check after if the countdown should begin, only clearInterval when we are passed stop
 
-
+  createChildNodes() {
+    if (!this.timeObject) {
+      this.state = 'inactive';
+      return;
+    };
+    
+    // this.timeObject.total.forEach( obj => {
+      
+    // });
+    
+  }
 });
