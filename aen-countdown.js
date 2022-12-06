@@ -71,31 +71,31 @@ customElements.define('aen-countdown', class AENCountdown extends HTMLElement {
   }
 
   connectedCallback() {
-    this.createChildNodes();
+    if (!this.hasAttribute('start') || this.getAttribute('start') == '') {
+      this.setAttribute('start', new Date());
+    }
+
+    if (!this.hasAttribute('stop') || this.getAttribute('stop') == '') {
+      this.setAttribute('stop', new Date());
+    }
+
+    if (!this.hasAttribute('type') || this.getAttribute('type') == '') {
+      this.setAttribute('type', 'first');
+    }
+
+    this.createDigits();
   }
 
   get start() {
-    return this.hasAttribute('start')
-    ? this.getAttribute('start') !== '' 
-    ? Date.parse(this.getAttribute('start')) 
-    : new Date().getTime()
-    : new Date().getTime();
+    return Date.parse(this.getAttribute('start'));
   }
 
   get stop() {
-    return this.hasAttribute('stop')
-    ? this.getAttribute('stop') !== '' 
-    ? Date.parse(this.getAttribute('stop')) 
-    : false
-    : false;
+    return Date.parse(this.getAttribute('stop'));
   }
 
   get type() {
-    return this.hasAttribute('type')
-    ? this.getAttribute('type') !== ''
-    ? this.getAttribute('type')
-    : 'slide'
-    : 'slide';
+    return this.getAttribute('type');
   }
 
   get run() {
@@ -135,6 +135,9 @@ customElements.define('aen-countdown', class AENCountdown extends HTMLElement {
       return number < 10 ? '0' + number : String(number);
     }
     
+    /**
+     * Help from this article: https://www.sitepoint.com/build-javascript-countdown-timer-no-dependencies/
+     */
     var 
     remaining = this.stop - now,
     days = digits( Math.floor( remaining/(24*60*60*1000) ) ),
@@ -142,7 +145,7 @@ customElements.define('aen-countdown', class AENCountdown extends HTMLElement {
     minutes = digits( Math.floor( (remaining/1000/60) % 60 ) ),
     seconds = digits( Math.floor( (remaining/1000) % 60 ) ),
     total = String(days + hours + minutes + seconds).split('');
-    
+
     return {
       days: days,
       hours: hours,
@@ -167,7 +170,7 @@ customElements.define('aen-countdown', class AENCountdown extends HTMLElement {
   };
   // Check after if the countdown should begin, only clearInterval when we are passed stop
 
-  createChildNodes() {
+  createDigits() {
     if (!this.run) {
       this.state = 'inactive';
       return;
