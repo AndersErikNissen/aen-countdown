@@ -53,17 +53,14 @@ var testy = function() { return 11}
 Object.defineProperty(obj.prototype, 'test', {
   get : function() {
     var test = testy();
-    console.log("test",test)
 
     Object.defineProperty(this, 'test', {
       value: test
     })
 
-    return test
+    //Returned the first time(on initialization)
+    return test + 12
   }
 })
 
-setInterval(()=> {
-
-}, 1000)
 console.log(obj1.test)
