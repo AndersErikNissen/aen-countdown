@@ -1,5 +1,32 @@
 "use strict";
 
+/**
+ * defineProperty trick for heavy data load
+ * 
+ * var obj = function() {
+  this.fx = 10;
+}
+
+var obj1 = new obj;
+
+var testy = function() { return 11}
+
+Object.defineProperty(obj.prototype, 'test', {
+  get : function() {
+    var test = testy();
+
+    Object.defineProperty(this, 'test', {
+      value: test
+    })
+
+    //Returned the first time(on initialization)
+    return test + 12
+  }
+})
+
+console.log(obj1.test)
+ */
+
 (function(d) {
   var countdown = function(node) {
     this.node = node;
