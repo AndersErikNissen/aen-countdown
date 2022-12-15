@@ -1,10 +1,5 @@
 "use strict";
 
-
-let timer = document.createElement('template');
-timer.innerHTML = `
-  
-`
 customElements.define('aen-countdown', class extends HTMLElement {
   get startDate() {
     let start = Date.parse( this.getAttribute('start') );
@@ -69,9 +64,17 @@ customElements.define('aen-countdown', class extends HTMLElement {
   constructor() {
     super();
 
-    const shadow = this.attachShadow({ mode: 'open' });
+    // Should this be just a const? Not sure if I can access that correctæy then??
+    this.shadow = this.attachShadow({ mode: 'open' });
    
 
+  }
+
+  connectedCallback() {
+    console.warn(this.startDate)
+    console.warn(this.time)
+    this._coreCallback(); // Run 1 time, before first interval fires
+    this._core();
   }
 
   _core() {
@@ -85,13 +88,17 @@ customElements.define('aen-countdown', class extends HTMLElement {
 
   }
 
-  connectedCallback() {
-    console.warn(this.startDate)
-    console.warn(this.time)
+  createStyling() {
+    let style = document.createElement('style');
+    style.innerHTML = `
+
+    `;
+    this.shadow.innerHTML += style;
   }
 
+
   createTimer(value) {
-    shadow.innerHTML += `
+    this.shadow.innerHTML += `
       <div data-aen-countdown-timer data-value="${value}">
         <span>${value}</span>
         <span>${value}</span>
