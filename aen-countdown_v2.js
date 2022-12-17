@@ -20,7 +20,7 @@ customElements.define('aen-countdown', class extends HTMLElement {
   }
 
   /**
-   * @params {Boolean} state - Should the current state of the Countdown be disabled?
+   * @param {Boolean} state - Should the current state of the Countdown be disabled?
    */
   set disabled(state) {
     let disable = Boolean(state);
@@ -29,23 +29,33 @@ customElements.define('aen-countdown', class extends HTMLElement {
     : this.removeAttribute('disabled');
   }
 
-  get time() {    
+  /**
+   * @param {Number} now - a new Date representing now 
+   */
+  set time(now) {
+    if(!now) return;
+    if (isNaN(now)) return;
+    
+    var 
+    remaining = this.stopDate - now;
+    
+    if (remaining <= 0) return;
+    
+    {
+      this.disabled = true;
+      this.time = null;
+    }
+    
+    var
+    formatTime = function(time) {
+      let formated = Math.floor(time);
+      return formated < 10 
+      ? '0' + formated
+      : String(formated);
+    },
     /**
      * Help from this article: https://www.sitepoint.com/build-javascript-countdown-timer-no-dependencies/
      */
-    if (!this.stopDate) {
-      this.disabled = true;
-      return false;
-    };
-
-    var 
-    remaining = this.stopDate - new Date().getTime(),
-    formatTime = function(time) {
-        let formated = Math.floor(time);
-        return formated < 10 
-        ? '0' + formated
-        : String(formated);
-    },
     timeObject = {
       days: formatTime(remaining/(24*60*60*1000)),
       hours: formatTime((remaining/(60*60*1000)) % 24),
@@ -56,7 +66,7 @@ customElements.define('aen-countdown', class extends HTMLElement {
     .reduce((previousValue, currentValue) => previousValue + currentValue)
     .split('');
 
-    return timeObject;
+    this.time = timeObject;
   }
 
 
