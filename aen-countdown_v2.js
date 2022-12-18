@@ -80,6 +80,7 @@ customElements.define('aen-countdown', class extends HTMLElement {
 
   }
 
+  
   connectedCallback() {
     console.warn(this.startDate)
     console.warn(this.time)
@@ -87,16 +88,20 @@ customElements.define('aen-countdown', class extends HTMLElement {
     this._core();
   }
 
+  _coreCallback() {
+    console.log("coreCallback")
+    if (this.disabled) return;
+
+    this.time = new Date().getTime();
+    console.log(this.time)
+  }
+
   _core() {
-    const loop = setInterval(_coreCallback, 1000);
+    const loop = setInterval(this._coreCallback, 1000);
 
     if(!stop) clearInterval(loop);
   }
 
-  _coreCallback() {
-    if (this.disabled) return;
-
-  }
 
   createStyling() {
     let style = document.createElement('style');
