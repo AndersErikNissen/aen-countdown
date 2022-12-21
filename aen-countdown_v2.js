@@ -1,5 +1,11 @@
 "use strict";
 
+/**
+ * Attributes
+ * stop     {Date}    (REQUIRED)
+ * start    {Date}    (OPTIONAL)
+ * disabled {Boolean} (OPTIONAL)
+ */
 customElements.define('aen-countdown', class extends HTMLElement {
   get startDate() {
     let start = Date.parse( this.getAttribute('start') );
@@ -27,6 +33,10 @@ customElements.define('aen-countdown', class extends HTMLElement {
     disable
     ? this.setAttribute('disabled','')
     : this.removeAttribute('disabled');
+  }
+
+  get time() {
+    return this.time;
   }
 
   /**
@@ -92,14 +102,16 @@ customElements.define('aen-countdown', class extends HTMLElement {
     console.log("coreCallback")
     if (this.disabled) return;
 
+    let oldTime = this.time;
+    console.log("OLD",oldTime)
     this.time = new Date().getTime();
-    console.log(this.time)
+    console.log("NEW",this.time)
   }
 
   _core() {
     const loop = setInterval(this._coreCallback, 1000);
 
-    if(!stop) clearInterval(loop);
+    if(!this.stopDate) clearInterval(loop);
   }
 
 
