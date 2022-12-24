@@ -2,9 +2,23 @@
 
 /**
  * Attributes
- * stop     {Date}    (REQUIRED)
- * start    {Date}    (OPTIONAL)
- * disabled {Boolean} (OPTIONAL)
+ * {Date}       stop      (REQUIRED)
+ * {Date}       start     (OPTIONAL)
+ * {String}     type      (DEFAULT: "blink") - Options: Blink, Elevator
+ * {Boolean}    disabled  (OPTIONAL)
+ * {String}     split     (DEFAULT: "")
+ * {Array**}    after     (OPTIONAL)
+ * 
+ * Description
+ * Array*   An array created by splitting the string with comma (,).
+ * Array**  Same as Array*, but will be used on after the countdowns depending on the amount of values given. 
+ *          -- The the array will be used differently depending on the lenght of the array.
+ *          -- (0)   The attribute will be ignored.
+ *          -- (1)   Array[0] -> Days / Hours / Minutes / Seconds
+ *          -- (2)   Array[0] -> Days / Minutes, Array[1] -> Hours / Seconds
+ *          -- (3)   Array[0] -> Days, Array[1] -> Hours, Array[2] -> Minutes, Array[0] -> Seconds
+ *          -- (4)   Same as (3), but Array[3] -> Seconds.
+ *          -- (4+)  First 4 will be used, rest is ignored.
  */
 customElements.define('aen-countdown', class extends HTMLElement {
   get startDate() {
@@ -36,7 +50,7 @@ customElements.define('aen-countdown', class extends HTMLElement {
   }
 
   get time() {
-    return this.time;
+    return this.now;
   }
 
   /**
@@ -45,16 +59,10 @@ customElements.define('aen-countdown', class extends HTMLElement {
   set time(now) {
     if(!now) return;
     if (isNaN(now)) return;
-    
     var 
     remaining = this.stopDate - now;
     
     if (remaining <= 0) return;
-    
-    {
-      this.disabled = true;
-      this.time = null;
-    }
     
     var
     formatTime = function(time) {
@@ -72,66 +80,115 @@ customElements.define('aen-countdown', class extends HTMLElement {
       minutes: formatTime((remaining/1000/60) % 60),
       seconds: formatTime((remaining/1000) % 60 )
     };
+
     timeObject.digits = Object.values(timeObject)
     .reduce((previousValue, currentValue) => previousValue + currentValue)
     .split('');
 
-    this.time = timeObject;
+    this.now = timeObject;
   }
 
+  get type() {
+    return this.getAttribute('type')
+    ? this.getAttribute('type').toLowerCase() === "elevator"
+    ? "elevator"
+    : "blink"
+    : "blink";
+  }
 
+  get split() {
+    return this.getAttribute('split')
+    ? this.getAttribute('split')
+    : "";
+  }
   
   constructor() {
     super();
-
-    // Should this be just a const? Not sure if I can access that correctæy then??
     this.shadow = this.attachShadow({ mode: 'open' });
-   
-
   }
 
-  
   connectedCallback() {
-    console.warn(this.startDate)
-    console.warn(this.time)
+    this.time = new Date().getTime();
+    this.createShadowDOM();
     this._coreCallback(); // Run 1 time, before first interval fires
     this._core();
   }
 
+  _compareAndUpdate(oneTime, twoTime) {
+    let timers = this.shadow.querySelectorAll('[data-aen-countdown-digit]');
+
+    oneTime.forEach((one, i) => {
+      if (one !== twoTime[i]) timers[i].textContent = twoTime[i];
+    });
+  }
+
   _coreCallback() {
-    console.log("coreCallback")
+    if (this.startDate > new Date().getTime()) this.disabled = true;
     if (this.disabled) return;
 
-    let oldTime = this.time;
-    console.log("OLD",oldTime)
+    let before = this.time;
     this.time = new Date().getTime();
-    console.log("NEW",this.time)
+  
+    this._compareAndUpdate(before.digits, this.time.digits);
   }
 
   _core() {
-    const loop = setInterval(this._coreCallback, 1000);
+    const loop = setInterval(this._coreCallback.bind(this), 1000);
 
     if(!this.stopDate) clearInterval(loop);
   }
 
-
   createStyling() {
     let style = document.createElement('style');
     style.innerHTML = `
-
+      .aen-countdown__digit {
+        display: inline-block;
+      }
     `;
-    this.shadow.innerHTML += style;
+    this.shadow.appendChild(style);
   }
 
+  createDigit(value, type) {
+    const digit = document.createElement('div');
+    digit.setAttribute('data-aen-countdown-digit', type);
+    digit.classList.add('aen-countdown__digit')
 
-  createTimer(value) {
-    this.shadow.innerHTML += `
-      <div data-aen-countdown-timer data-value="${value}">
-        <span>${value}</span>
-        <span>${value}</span>
-      </div>
-    `;
+    const time = document.createElement('span');
+    time.classList.add('aen-countdown__time')
+    time.textContent = value;
+
+    digit.appendChild(time.cloneNode(true));
+
+    if (type == "elevator") {
+      let elevator = time.cloneNode(true);
+      elevator.setAttribute('data-aen-countdown-elevator','')
+      elevator.classList.add('aen-countdown__elevator');
+      digit.appendChild(elevator);
+    }
+
+    return digit;
   }
 
- 
+  createSplit() {
+    const split = document.createElement('span');
+    split.classList.add('aen-countdown__split');
+    split.textContent = this.split;
+
+    return split;
+  }
+
+  createShadowDOM() {
+    let digits = this.time.digits; 
+
+    digits.forEach((digit,i) => {
+      this.shadow.appendChild(this.createDigit(digit,this.type));
+
+      let split = i + 1;
+
+      if (split % 2 !== 0) return;
+      if (split > digits.length - 1) return;
+      this.shadow.appendChild(this.createSplit());
+    });
+    this.createStyling();
+  }
 });
