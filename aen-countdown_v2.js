@@ -101,6 +101,14 @@ customElements.define('aen-countdown', class extends HTMLElement {
     ? this.getAttribute('split')
     : "";
   }
+
+  get after() {
+    return this.getAttribute('after')
+    ? this.getAttribute('after') !== ""
+      ? this.getAttribute('after').split(',')
+      : false
+    : false;
+  }
   
   constructor() {
     super();
@@ -112,6 +120,8 @@ customElements.define('aen-countdown', class extends HTMLElement {
     this.createShadowDOM();
     this._coreCallback(); // Run 1 time, before first interval fires
     this._core();
+
+    console.log(this.after)
   }
 
   _compareAndUpdate(oneTime, twoTime) {
@@ -169,12 +179,20 @@ customElements.define('aen-countdown', class extends HTMLElement {
     return digit;
   }
 
-  createSplit() {
+  addSplit() {
     const split = document.createElement('span');
     split.classList.add('aen-countdown__split');
     split.textContent = this.split;
 
     return split;
+  }
+
+  addAfter(string) {
+    const after = document.createElement('span');
+    after.classList.add('aen-countdown__after');
+    after.textContent = string;
+
+    return after;
   }
 
   createShadowDOM() {
@@ -187,8 +205,9 @@ customElements.define('aen-countdown', class extends HTMLElement {
 
       if (split % 2 !== 0) return;
       if (split > digits.length - 1) return;
-      this.shadow.appendChild(this.createSplit());
+      this.shadow.appendChild(this.addSplit());
     });
+
     this.createStyling();
   }
 });
