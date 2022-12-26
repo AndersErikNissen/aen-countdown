@@ -117,7 +117,7 @@ customElements.define('aen-countdown', class extends HTMLElement {
 
   connectedCallback() {
     this.time = new Date().getTime();
-    this.createShadowDOM();
+    this._createShadowDOM();
     this._coreCallback(); // Run 1 time, before first interval fires
     this._core();
 
@@ -195,8 +195,9 @@ customElements.define('aen-countdown', class extends HTMLElement {
     return after;
   }
 
-  createShadowDOM() {
-    let digits = this.time.digits; 
+  _createShadowDOM() {
+    let digits = this.time.digits;
+    let afterIndex = 0;
 
     digits.forEach((digit,i) => {
       this.shadow.appendChild(this.createDigit(digit,this.type));
@@ -204,6 +205,11 @@ customElements.define('aen-countdown', class extends HTMLElement {
       let split = i + 1;
 
       if (split % 2 !== 0) return;
+      if (this.after) {
+        if (afterIndex < digits.length) {
+          this.shadow.appendChild(this.addAfter(this.after[afterIndex++]));
+        };
+      }
       if (split > digits.length - 1) return;
       this.shadow.appendChild(this.addSplit());
     });
