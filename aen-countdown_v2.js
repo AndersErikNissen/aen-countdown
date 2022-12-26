@@ -91,8 +91,8 @@ customElements.define('aen-countdown', class extends HTMLElement {
   get type() {
     return this.getAttribute('type')
     ? this.getAttribute('type').toLowerCase() === "elevator"
-    ? "elevator"
-    : "blink"
+      ? "elevator"
+      : "blink"
     : "blink";
   }
 
@@ -120,15 +120,24 @@ customElements.define('aen-countdown', class extends HTMLElement {
     this._createShadowDOM();
     this._coreCallback(); // Run 1 time, before first interval fires
     this._core();
+  }
 
-    console.log(this.after)
+  _updateElevator(node,time) {
+    let elevator = node.querySelector('[data-aen-countdown-elevator]');
+
+    elevator.textContent = time;
   }
 
   _compareAndUpdate(oneTime, twoTime) {
     let timers = this.shadow.querySelectorAll('[data-aen-countdown-digit]');
 
     oneTime.forEach((one, i) => {
-      if (one !== twoTime[i]) timers[i].textContent = twoTime[i];
+      if (one !== twoTime[i]) {
+        this._updateElevator(timers[i],twoTime[i]);
+        // timers[i].querySelectorAll('[data-aen-countdown-time]').forEach(time => {
+        //   time.textContent = twoTime[i];
+        // });
+      } 
     });
   }
 
@@ -151,8 +160,22 @@ customElements.define('aen-countdown', class extends HTMLElement {
   createStyling() {
     let style = document.createElement('style');
     style.innerHTML = `
+      :host {
+        display: flex;
+        font-size: 16px;
+        line-height: 1;
+      }
+
       .aen-countdown__digit {
-        display: inline-block;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        height: 1em;
+        overflow: hidden;
+      }
+
+      [data-aen-countdown-digit="elevator"] .aen-countdown__time {
+        display: block;
       }
     `;
     this.shadow.appendChild(style);
@@ -164,18 +187,19 @@ customElements.define('aen-countdown', class extends HTMLElement {
     digit.classList.add('aen-countdown__digit')
 
     const time = document.createElement('span');
-    time.classList.add('aen-countdown__time')
+    time.setAttribute('data-aen-countdown-time','')
+    time.classList.add('aen-countdown__time');
     time.textContent = value;
-
-    digit.appendChild(time.cloneNode(true));
-
+    
     if (type == "elevator") {
       let elevator = time.cloneNode(true);
-      elevator.setAttribute('data-aen-countdown-elevator','')
+      elevator.setAttribute('data-aen-countdown-elevator','');
       elevator.classList.add('aen-countdown__elevator');
       digit.appendChild(elevator);
     }
 
+    digit.appendChild(time.cloneNode(true));
+    
     return digit;
   }
 
@@ -203,13 +227,20 @@ customElements.define('aen-countdown', class extends HTMLElement {
       this.shadow.appendChild(this.createDigit(digit,this.type));
 
       let split = i + 1;
+      let useAfter = this.after
+      ? afterIndex < digits.length
+        ? true
+        : false
+      : false;
 
       if (split % 2 !== 0) return;
-      if (this.after) {
-        if (afterIndex < digits.length) {
-          this.shadow.appendChild(this.addAfter(this.after[afterIndex++]));
-        };
+      if (useAfter) {
+        if(this.after[afterIndex] !== "") {
+          this.shadow.appendChild(this.addAfter(this.after[afterIndex]));
+        }
+        afterIndex++;
       }
+
       if (split > digits.length - 1) return;
       this.shadow.appendChild(this.addSplit());
     });
