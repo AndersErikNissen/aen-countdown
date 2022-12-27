@@ -122,10 +122,17 @@ customElements.define('aen-countdown', class extends HTMLElement {
     this._core();
   }
 
-  _updateElevator(node,time) {
+  _updateElevator(node, time) {
     let elevator = node.querySelector('[data-aen-countdown-elevator]');
+    let timer = node.querySelector('[data-aen-countdown-time]');
 
     elevator.textContent = time;
+    node.classList.add('elevating');
+    
+    setTimeout(function() {
+      timer.textContent = time;
+      node.classList.remove('elevating');
+    }, 500)
   }
 
   _compareAndUpdate(oneTime, twoTime) {
@@ -133,10 +140,13 @@ customElements.define('aen-countdown', class extends HTMLElement {
 
     oneTime.forEach((one, i) => {
       if (one !== twoTime[i]) {
-        this._updateElevator(timers[i],twoTime[i]);
-        // timers[i].querySelectorAll('[data-aen-countdown-time]').forEach(time => {
-        //   time.textContent = twoTime[i];
-        // });
+        if (this.type == "elevator") {
+          this._updateElevator(timers[i],twoTime[i]);
+        }
+
+        if (this.type == "blink") {
+          timers[i].querySelector('[data-aen-countdown-time]').textContent = twoTime[i];
+        }
       } 
     });
   }
@@ -163,15 +173,24 @@ customElements.define('aen-countdown', class extends HTMLElement {
       :host {
         display: flex;
         font-size: 16px;
-        line-height: 1;
+        line-height: 1.6;
       }
 
-      .aen-countdown__digit {
+      [data-aen-countdown-digit="elevator"].aen-countdown__digit {
         display: flex;
         flex-direction: column;
         justify-content: flex-end;
-        height: 1em;
+        height: calc(1em * 1.6);
         overflow: hidden;
+      }
+
+      [data-aen-countdown-digit="blink"].aen-countdown__digit {
+        display: inline-block;
+      }
+      
+      .aen-countdown__digit.elevating > * {
+        transform: translateY(100%);
+        transition: transform .5s ease;
       }
 
       [data-aen-countdown-digit="elevator"] .aen-countdown__time {
@@ -187,7 +206,6 @@ customElements.define('aen-countdown', class extends HTMLElement {
     digit.classList.add('aen-countdown__digit')
 
     const time = document.createElement('span');
-    time.setAttribute('data-aen-countdown-time','')
     time.classList.add('aen-countdown__time');
     time.textContent = value;
     
@@ -198,7 +216,10 @@ customElements.define('aen-countdown', class extends HTMLElement {
       digit.appendChild(elevator);
     }
 
-    digit.appendChild(time.cloneNode(true));
+    let basic = time.cloneNode(true);
+    basic.setAttribute('data-aen-countdown-time','');
+
+    digit.appendChild(basic);
     
     return digit;
   }
