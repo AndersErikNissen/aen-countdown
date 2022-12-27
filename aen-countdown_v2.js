@@ -21,6 +21,8 @@
  *          -- (4+)  First 4 will be used, rest is ignored.
  */
 customElements.define('aen-countdown', class extends HTMLElement {
+
+  static get observedAttributes() { return ['disabled','start','stop']}
   get startDate() {
     let start = Date.parse( this.getAttribute('start') );
     return !isNaN(start) 
@@ -152,7 +154,10 @@ customElements.define('aen-countdown', class extends HTMLElement {
   }
 
   _coreCallback() {
-    if (this.startDate > new Date().getTime()) this.disabled = true;
+    this.startDate > new Date().getTime()
+    ? this.disabled = true
+    : this.disabled = false;
+
     if (this.disabled) return;
 
     let before = this.time;
@@ -164,7 +169,10 @@ customElements.define('aen-countdown', class extends HTMLElement {
   _core() {
     const loop = setInterval(this._coreCallback.bind(this), 1000);
 
-    if(!this.stopDate) clearInterval(loop);
+    if(this.stopDate <= new Date().getTime()) {
+      clearInterval(loop);
+      this.disabled = true;
+    };
   }
 
   createStyling() {
@@ -176,6 +184,10 @@ customElements.define('aen-countdown', class extends HTMLElement {
         display: flex;
         font-size: 16px;
         line-height: ${lineHeight};
+      }
+
+      :host[disabled] {
+        display: none;
       }
 
       [data-aen-countdown-digit="elevator"].aen-countdown__digit {
