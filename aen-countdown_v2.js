@@ -193,7 +193,9 @@ customElements.define('aen-countdown', class extends HTMLElement {
 
   _createStyling() {
     let style = document.createElement('style');
-    let lineHeight = 1.6;
+    let lineHeight = 1.1;
+    let spacing = 4;
+    let elevatorSpacing = 2;
 
     style.innerHTML = `
       :host {
@@ -210,8 +212,23 @@ customElements.define('aen-countdown', class extends HTMLElement {
         display: flex;
         flex-direction: column;
         justify-content: flex-end;
-        height: calc(1em * ${lineHeight});
+        height: calc(1em * ${lineHeight} + (${elevatorSpacing}px * 2));
         overflow: hidden;
+        margin: 0 2px 0 0;
+      }
+
+      [data-aen-countdown-digit="elevator"] .aen-countdown__time {
+        background-color: grey;
+        padding: ${elevatorSpacing}px;
+        text-align: center;
+        border-radius: 2px;
+      }
+
+      [data-aen-countdown-digit="elevator"] .aen-countdown__spacer {
+        display: block;
+        height: ${spacing}px;
+        width: 100%;
+        flex-shrink: 0;
       }
 
       [data-aen-countdown-digit="blink"].aen-countdown__digit {
@@ -219,7 +236,7 @@ customElements.define('aen-countdown', class extends HTMLElement {
       }
       
       .aen-countdown__digit.elevating > * {
-        transform: translateY(100%);
+        transform: translateY(calc(100% + ${spacing}px));
         transition: transform .5s ease;
       }
 
@@ -241,9 +258,12 @@ customElements.define('aen-countdown', class extends HTMLElement {
     
     if (type == "elevator") {
       let elevator = time.cloneNode(true);
+      let spacer = document.createElement('span');
+      spacer.classList.add('aen-countdown__spacer');
       elevator.setAttribute('data-aen-countdown-elevator','');
       elevator.classList.add('aen-countdown__elevator');
       digit.appendChild(elevator);
+      digit.appendChild(spacer);
     }
 
     let basic = time.cloneNode(true);
