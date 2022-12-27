@@ -169,18 +169,20 @@ customElements.define('aen-countdown', class extends HTMLElement {
 
   createStyling() {
     let style = document.createElement('style');
+    let lineHeight = 1.6;
+
     style.innerHTML = `
       :host {
         display: flex;
         font-size: 16px;
-        line-height: 1.6;
+        line-height: ${lineHeight};
       }
 
       [data-aen-countdown-digit="elevator"].aen-countdown__digit {
         display: flex;
         flex-direction: column;
         justify-content: flex-end;
-        height: calc(1em * 1.6);
+        height: calc(1em * ${lineHeight});
         overflow: hidden;
       }
 
