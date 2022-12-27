@@ -22,7 +22,8 @@
  */
 customElements.define('aen-countdown', class extends HTMLElement {
 
-  static get observedAttributes() { return ['disabled','start','stop']}
+  static get observedAttributes() { return ['start','stop']};
+
   get startDate() {
     let start = Date.parse( this.getAttribute('start') );
     return !isNaN(start) 
@@ -64,7 +65,10 @@ customElements.define('aen-countdown', class extends HTMLElement {
     var 
     remaining = this.stopDate - now;
     
-    if (remaining <= 0) return;
+    if (remaining <= 0) {
+      this.disabled = true;
+      return false;
+    };
     
     var
     formatTime = function(time) {
@@ -119,8 +123,19 @@ customElements.define('aen-countdown', class extends HTMLElement {
 
   connectedCallback() {
     this.time = new Date().getTime();
-    this._createShadowDOM();
+    if(this.time) this._createShadowDOM();
     this._coreCallback(); // Run 1 time, before first interval fires
+    this._core();
+  }
+
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (!oldValue) return;
+    if (!this.stopDate) return;
+
+    this.time = this.startDate;
+    if (!this.time) return;
+    this.disabled = false;
+    this._createShadowDOM();
     this._core();
   }
 
@@ -159,6 +174,7 @@ customElements.define('aen-countdown', class extends HTMLElement {
     : this.disabled = false;
 
     if (this.disabled) return;
+    if (!this.time) return;
 
     let before = this.time;
     this.time = new Date().getTime();
@@ -175,7 +191,7 @@ customElements.define('aen-countdown', class extends HTMLElement {
     };
   }
 
-  createStyling() {
+  _createStyling() {
     let style = document.createElement('style');
     let lineHeight = 1.6;
 
@@ -186,7 +202,7 @@ customElements.define('aen-countdown', class extends HTMLElement {
         line-height: ${lineHeight};
       }
 
-      :host[disabled] {
+      :host([disabled]) {
         display: none;
       }
 
@@ -255,6 +271,7 @@ customElements.define('aen-countdown', class extends HTMLElement {
   }
 
   _createShadowDOM() {
+    this.shadow.innerHTML = "";
     let digits = this.time.digits;
     let afterIndex = 0;
 
@@ -280,6 +297,6 @@ customElements.define('aen-countdown', class extends HTMLElement {
       this.shadow.appendChild(this.addSplit());
     });
 
-    this.createStyling();
+    this._createStyling();
   }
 });
