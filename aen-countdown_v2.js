@@ -19,6 +19,15 @@
  *          -- (3)   Array[0] -> Days, Array[1] -> Hours, Array[2] -> Minutes, Array[0] -> Seconds
  *          -- (4)   Same as (3), but Array[3] -> Seconds.
  *          -- (4+)  First 4 will be used, rest is ignored.
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * Notes: 3 states , running, disabled and shutdown
+ *  - if shutdown, change when stop attribute changes and are valid - then run core again. Maybe create the DOM again?
  */
 customElements.define('aen-countdown', class extends HTMLElement {
 
@@ -202,6 +211,7 @@ customElements.define('aen-countdown', class extends HTMLElement {
         display: flex;
         font-size: 16px;
         line-height: ${lineHeight};
+        color: white;
       }
 
       :host([disabled]) {
@@ -215,10 +225,23 @@ customElements.define('aen-countdown', class extends HTMLElement {
         height: calc(1em * ${lineHeight} + (${elevatorSpacing}px * 2));
         overflow: hidden;
         margin: 0 2px 0 0;
+        position: relative;
+      }
+
+      [data-aen-countdown-digit="elevator"].aen-countdown__digit::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 40%;
+        background-color: #f4f4f42e;
+        z-index: 1;
       }
 
       [data-aen-countdown-digit="elevator"] .aen-countdown__time {
-        background-color: grey;
+        background-color: #f0f0f0;
+        background-color: #000;
         padding: ${elevatorSpacing}px;
         text-align: center;
         border-radius: 2px;
@@ -235,7 +258,7 @@ customElements.define('aen-countdown', class extends HTMLElement {
         display: inline-block;
       }
       
-      .aen-countdown__digit.elevating > * {
+      .aen-countdown__digit.elevating > span {
         transform: translateY(calc(100% + ${spacing}px));
         transition: transform .5s ease;
       }
