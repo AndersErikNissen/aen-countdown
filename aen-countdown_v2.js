@@ -28,6 +28,9 @@
  * 
  * Notes: 3 states , running, disabled and shutdown
  *  - if shutdown, change when stop attribute changes and are valid - then run core again. Maybe create the DOM again?
+ *  - when should the dom be checked / created? Another way to create the DOM? Maybe have a template? and then input the values later?
+ *      - maybe when the core is running or are starting?
+ *  -- NO DUBLICATE CODE!!
  */
 customElements.define('aen-countdown', class extends HTMLElement {
 
