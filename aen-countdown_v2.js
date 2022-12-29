@@ -34,7 +34,7 @@
  */
 customElements.define('aen-countdown', class extends HTMLElement {
 
-  static get observedAttributes() { return ['start','stop']};
+  static get observedAttributes() { return ['start','stop','type']};
 
   get startDate() {
     let start = Date.parse( this.getAttribute('start') );
@@ -79,7 +79,7 @@ customElements.define('aen-countdown', class extends HTMLElement {
     
     if (remaining <= 0) {
       this.disabled = true;
-      return false;
+      return;
     };
     
     var
@@ -134,20 +134,29 @@ customElements.define('aen-countdown', class extends HTMLElement {
   }
 
   connectedCallback() {
-    this.time = new Date().getTime();
-    if(this.time) this._createShadowDOM();
-    this._coreCallback(); // Run 1 time, before first interval fires
-    this._core();
+    this._build();
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
-    if (!oldValue) return;
-    if (!this.stopDate) return;
+    if (name == "type") {
+      this.type;
+      this._build();
+      return;
+    }
 
+    if (!oldValue) return;
+    if (!this.stopDate) {
+      this.disabled = true;
+      return;
+    };
+
+    this._build();
+  }
+
+  _build() {
     this.time = this.startDate;
-    if (!this.time) return;
-    this.disabled = false;
     this._createShadowDOM();
+    this._coreCallback(); // Run 1 time, before first interval fires
     this._core();
   }
 
@@ -214,6 +223,9 @@ customElements.define('aen-countdown', class extends HTMLElement {
         display: flex;
         font-size: 16px;
         line-height: ${lineHeight};
+      }
+      
+      :host([type="elevator"]) {
         color: white;
       }
 
@@ -238,7 +250,7 @@ customElements.define('aen-countdown', class extends HTMLElement {
         left: 0;
         width: 100%;
         height: 40%;
-        background-color: #f4f4f42e;
+        background-color: #f4f4f475;
         z-index: 1;
       }
 
